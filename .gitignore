@@ -1,0 +1,10 @@
+build/
+.gradle/
+plugin.xml
+target
+out
+Scripts
+*.log
+.settings
+.idea
+*.iml
