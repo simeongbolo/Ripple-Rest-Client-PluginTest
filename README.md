@@ -20,6 +20,20 @@ This is **required**:
 
 ##Run the integration tests 
 
+###Replace "Pleas add" with the correct values 
+
+        
+      def rippleRestClientService
+    def testAddressSecret = "PLEASE_ADD"
+    def testAddress = "PLEASE_ADD"
+    def testAddressTransactionHash = "PLEASE_ADD"
+    def testAddressPaymentHash = "PLEASE_ADD"
+
+    def testDestAddress = "PLEASE_ADD"
+    
 ##Also run the grails project locally and navigate to http://localhost:8080/RippleRestPluginTEst/testRipple
 
 ###To see the client being used on a running grails application
+
+
+###
