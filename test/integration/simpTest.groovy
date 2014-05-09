@@ -20,7 +20,7 @@ class simpTest {
 
          response =  rippleRestClientService.postPayment(testAddressSecret){
             source_account =testAddress
-            destination_account ="testDestAddress"
+            destination_account =testDestAddress
             destination_amount =  new Amount(value: ".0001",currency: "XRP" ,issuer: "")
         }
 
@@ -36,7 +36,7 @@ class simpTest {
         assert response.success == true
 
 
-        response = rippleRestClientService.getPaths("testAddress","testDestAddress"){
+        response = rippleRestClientService.getPaths(testAddress,testDestAddress){
                value = ".10"
             currency = "XRP"
             sourceCurrencies = ["USD","CHF","BTC"]
@@ -45,7 +45,7 @@ class simpTest {
         assert response.success == true
 //        response.payments.source_amount.value
         //no source currencies
-        response = rippleRestClientService.getPaths("testAddress","testAddress"){
+        response = rippleRestClientService.getPaths(testAddress,testDestAddress){
             value = ".10"
             currency = "XRP"
         }
