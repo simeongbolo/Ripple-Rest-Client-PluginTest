@@ -17,3 +17,9 @@ This is **required**:
                 serverUrl = "http://localhost:5990/v1/"
                  }
               }
+
+##Run the integration tests 
+
+##Also run the grails project locally and navigate to http://localhost:8080/RippleRestPluginTEst/testRipple
+
+###To see the client being used on a running grails application
