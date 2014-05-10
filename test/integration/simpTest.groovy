@@ -61,7 +61,6 @@ class simpTest {
         def balancesResponse = rippleRestClientService.getBalances(testAddress)
         println "\nTesting rippleRestClientService.getBalances\n"
 
-<<<<<<< HEAD
         balancesResponse.each{ it ->
             println  "The balance is "+it.value
             println  "The Currency is " + it.currency
@@ -88,19 +87,6 @@ class simpTest {
         //Test getting paths   - returns a list of payment opjects
         def payments = rippleRestClientService.getPaths("rDdwBhw5ypG7jgg2HTD8g3ntw3vrXq8ssQ",testAddress){
                value = ".10"
-=======
-        response = rippleRestClientService.getPaths(testAddress,testDestAddress){
-               value = ".10"
-            currency = "XRP"
-            sourceCurrencies = ["USD","CHF","BTC"]
-        }
-        println "\nrippleRestClientService.getPaths\n"+response.toString()
-        assert response.success == true
-//        response.payments.source_amount.value
-        //no source currencies
-        response = rippleRestClientService.getPaths(testAddress,testDestAddress){
-            value = ".10"
->>>>>>> FETCH_HEAD
             currency = "XRP"
             sourceCurrencies = ["USD","BTC"]
         }
