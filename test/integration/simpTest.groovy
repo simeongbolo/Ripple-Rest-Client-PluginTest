@@ -91,11 +91,7 @@ class simpTest {
 
         //Test getting paths   - returns a list of payment opjects
         def payments = rippleRestClientService.getPaths("rDdwBhw5ypG7jgg2HTD8g3ntw3vrXq8ssQ",testAddress){
-<<<<<<< HEAD
             value = ".10"
-=======
-               value = ".10"
->>>>>>> FETCH_HEAD
             currency = "XRP"
             sourceCurrencies = ["USD","BTC"]
         }
