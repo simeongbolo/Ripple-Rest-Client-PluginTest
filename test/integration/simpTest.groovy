@@ -1,6 +1,7 @@
 import groovy.json.JsonSlurper
 import org.junit.Test
 import sim.entity.*
+import sim.rest.RippleRequestException
 
 
 /**
@@ -44,7 +45,7 @@ class simpTest {
 
 
         //Test posting a payment
-      PaymentResponse  paymentResponse =  rippleRestClientService.postPayment(testAddressSecret){
+        PaymentResponse  paymentResponse =  rippleRestClientService.postPayment(testAddressSecret){
             source_account =testAddress
             destination_account =testDestAddress
             destination_amount =  new Amount(value: ".0001",currency: "XRP" ,issuer: "")
@@ -61,18 +62,21 @@ class simpTest {
         def balancesResponse = rippleRestClientService.getBalances(testAddress)
         println "\nTesting rippleRestClientService.getBalances\n"
 
-<<<<<<< HEAD
         balancesResponse.each{ it ->
             println  "The balance is "+it.value
             println  "The Currency is " + it.currency
+            assert    it.currency == "XRP" || it.currency == "USD"
             println "the Counter Party  is " + it?.counterparty
+            if(it.currency == "USD")
+            assert it.counterparty == "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B"
         }
 
         //Test getting a notification
-         NotificationResponse notificationResponseResponse = rippleRestClientService.getNotification(testAddress,testAddressTransactionHash)
+        NotificationResponse notificationResponseResponse = rippleRestClientService.getNotification(testAddress,testAddressTransactionHash)
         println "\nTesting rippleRestClientService.getNotification\n"
 
         println "The Direction is " + notificationResponseResponse.direction +"\n"
+        assert notificationResponseResponse.direction == "outgoing"
         println "The Hash is " + notificationResponseResponse.hash +"\n"
         println "The state is " + notificationResponseResponse.state +"\n"
         println "The type is " + notificationResponseResponse.type +"\n"
@@ -87,27 +91,14 @@ class simpTest {
 
         //Test getting paths   - returns a list of payment opjects
         def payments = rippleRestClientService.getPaths("rDdwBhw5ypG7jgg2HTD8g3ntw3vrXq8ssQ",testAddress){
-               value = ".10"
-=======
-        response = rippleRestClientService.getPaths(testAddress,testDestAddress){
-               value = ".10"
-            currency = "XRP"
-            sourceCurrencies = ["USD","CHF","BTC"]
-        }
-        println "\nrippleRestClientService.getPaths\n"+response.toString()
-        assert response.success == true
-//        response.payments.source_amount.value
-        //no source currencies
-        response = rippleRestClientService.getPaths(testAddress,testDestAddress){
             value = ".10"
->>>>>>> FETCH_HEAD
             currency = "XRP"
             sourceCurrencies = ["USD","BTC"]
         }
         println "Test for rippleRestClientService.getPaths\n"
 
         payments.each {p ->
-           assert p.source_account != null
+            assert p.source_account != null
             println p.destination_amount
             println p.destination_tag
             println p.direction
@@ -130,14 +121,14 @@ class simpTest {
 
 
         //Test getting a payment with query params  -  returns a list of payments
-       def payments2  = rippleRestClientService.getPaymentQuery(testAddress){
+        def payments2  = rippleRestClientService.getPaymentQuery(testAddress){
             earliest_first = true
             direction = "incoming"
         }
 
         println "Test For rippleRestClientService.getPaymentQuery\n"
         payments2.each{it ->
-           println "====Payent info===="
+            println "====Payent info===="
             assert it.result == "tesSUCCESS"
             println "The Direction is " + it.direction +"\n"
             println "The Hash is " + it.hash +"\n"
@@ -153,7 +144,7 @@ class simpTest {
 
 
 
-         //Test Transactions
+        //Test Transactions
         response = rippleRestClientService.getTransaction(testAddressTransactionHash)
         println "Test for rippleRestClientService.getTransaction\n"
         assert response.success == true
@@ -169,7 +160,7 @@ class simpTest {
 
 
         //test for trustlines - returns a list of trust lines
-       def trustLines  = rippleRestClientService.getTrustLines(testAddress){
+        def trustLines  = rippleRestClientService.getTrustLines(testAddress){
             currency = "USD"
         }
 
@@ -192,7 +183,7 @@ class simpTest {
             account_allows_rippling = true
         }
         println "Test For rippleRestClientService.grantTrustLine\n"
-         assert   trustLine.counterparty != null
+        assert   trustLine.counterparty != null
         println "The limit is " + trustLine.limit +"\n"
         println "The account is " + trustLine.account +"\n"
         println "The currency is " + trustLine.currency +"\n"
@@ -215,6 +206,10 @@ class simpTest {
 
     }
 
+    /**
+     * Test for the alternate path of sending a bad request,
+     * The ripple server should respond with an error message
+     */
     @Test
     public void testAlternatePath(){
 
@@ -223,76 +218,127 @@ class simpTest {
         testAddressTransactionHash = "BAD"
         testAddressPaymentHash = "BAD"
 
-        println rippleRestClientService.getUuid()
-        response =  rippleRestClientService.postPayment(testAddressSecret){
+        //Get the server status and ensure the ripple server is running
+        response = rippleRestClientService.getConnectionStatus()
+        assert response.success == true
+
+        try{
+            println "rippleRestClientService.getBalances"
+            response =  rippleRestClientService.postPayment(testAddressSecret){
             source_account =testAddress
-            destination_account ="PLEASE_ADD"
+            destination_account ="BAD"
             destination_amount =  new Amount(value: ".0001",currency: "XRP" ,issuer: "")
         }
-
-        println "\nrippleRestClientService.postPayment\n"+response.toString()
-        assert response.success == false
-
-        response = rippleRestClientService.getBalances(testAddress)
-        println "\nrippleRestClientService.getBalances\n"+response.toString()
-        assert response.success == false
-        assert response.message == "Specified address is invalid: account"
-        response = rippleRestClientService.getNotification(testAddress,testAddressTransactionHash)
-        println "\nrippleRestClientService.getNotification\n"+response.toString()
-        assert response.success == false
+           //fail the test if no exception is thrown
+           assert false
+            }catch(RippleRequestException e){
+            println e.message
+              assert e.message == "There was an error processing your request: " +
+                      "Invalid parameter: source_account. Must be a valid Ripple address"
+            }
 
 
-        response = rippleRestClientService.getPaths("BAD","BAD"){
+        try {
+            println "rippleRestClientService.getBalances"
+            response = rippleRestClientService.getBalances(testAddress)
+            //fail the test in no exception is thrown
+            assert false
+        } catch (RippleRequestException e) {
+            assert e.message =="There was an error processing your request: Specified address is invalid: account"
+        }
+
+
+        try {
+            println "rippleRestClientService.getNotification"
+            response = rippleRestClientService.getNotification(testAddress,testAddressTransactionHash)
+            //fail the test in no exception is thrown
+            assert false
+        } catch (RippleRequestException e) {
+            assert e.message =="There was an error processing your request: Specified address is invalid: account"
+        }
+
+
+
+        try{
+            println "rippleRestClientService.getPaths"
+            response = rippleRestClientService.getPaths("BAD","BAD"){
             value = ".10"
             currency = "XRP"
             sourceCurrencies = ["USD","CHF","BTC"]
         }
-        println "\nrippleRestClientService.getNotification\n"+response.toString()
-        assert response.success == false
+            //fail the test in no exception is thrown
+            assert false
 
-        //no source currencies
-        response = rippleRestClientService.getPaths("BAD","BAD"){
-            value = ".10"
-            currency = "XRP"
+        } catch (RippleRequestException e) {
+            assert e.message =="There was an error processing your request: Specified address is invalid: account"
         }
-        println "\nrippleRestClientService.getNotification\n"+response.toString()
-        assert response.success == false
 
+
+        try {
+        //no source currencies
+        println "rippleRestClientService.getPaths"
+        response = rippleRestClientService.getPaths("rU4oGkzf2Hh82X4Aj2s4dz4ev33ezTzNTq","rLGaDmicKt96YguCvnCyWq9n7RjjarTWWb"){
+            value = ".10"
+            currency = "XRPPP"
+        }
+            //fail the test in no exception is thrown
+            assert false
+        } catch (RippleRequestException e) {
+            assert e.message =="There was an error processing your request: Invalid parameter: destination_amount. Must be an object of the form { value: '1', currency: 'XRP', issuer: ' }"
+        }
+
+
+        try {
+        println "rippleRestClientService.getPayment"
         response = rippleRestClientService.getPayment(testAddress){
             hash = testAddressPaymentHash
         }
-        println "\nrippleRestClientService.getPayment\n"+response.toString()
-        assert response.success == false
+            //fail the test in no exception is thrown
+            assert false
+        } catch (RippleRequestException e) {
+            assert e.message =="There was an error processing your request: Specified address is invalid: account"
+        }
 
 
+        try {
+        println "rippleRestClientService.getPaymentQuery"
         response = rippleRestClientService.getPaymentQuery(testAddress){
             earliest_first = false
             direction = "incoming"
         }
-        println "\nrippleRestClientService.getPaymentQuery\n"+response.toString()
-        assert response.success == false
+            //fail the test in no exception is thrown
+            assert false
+        } catch (RippleRequestException e) {
+            assert e.message =="There was an error processing your request: Specified address is invalid: account"
+        }
 
+        try {
+        println "rippleRestClientService.getTrustLines"
         response = rippleRestClientService.getTrustLines("BAD"){
 
         }
-        println "\nrippleRestClientService.getTrustLines\n"+response.toString()
-        assert response.success == false
+            //fail the test in no exception is thrown
+            assert false
+        } catch (RippleRequestException e) {
+            assert e.message =="There was an error processing your request: Specified address is invalid: account"
+        }
 
+        try {
+        println "rippleRestClientService.grantTrustline"
         response = rippleRestClientService.grantTrustLine(testAddressSecret,testAddress){
             limit = 5
             currency ="USD"
             counterparty = "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B"
             account_allows_rippling = true
         }
-        println "\nrippleRestClientService.grantTrustLine\n"+response.toString()
-        assert response.success == false
+            //fail the test in no exception is thrown
+            assert false
+        } catch (RippleRequestException e) {
+            assert e.message =="There was an error processing your request: Specified address is invalid: account"
+        }
 
-        response = rippleRestClientService.getConnectionStatus()
-        println "\nrippleRestClientService.getConnectionStatus\n"+response.toString()
-        assert response.success == true
 
-        response = rippleRestClientService.getServerInfo()
-        println "\nrippleRestClientService.getServerInfo \n"+response.toString()
-        assert response.success == true
+
+
     }
 }
