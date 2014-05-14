@@ -241,7 +241,7 @@ class simpTest {
         try {
             println "rippleRestClientService.getBalances"
             response = rippleRestClientService.getBalances(testAddress)
-            //fail the test in no exception is thrown
+            //fail the test if no exception is thrown
             assert false
         } catch (RippleRequestException e) {
             assert e.message =="There was an error processing your request: Specified address is invalid: account"
@@ -251,7 +251,7 @@ class simpTest {
         try {
             println "rippleRestClientService.getNotification"
             response = rippleRestClientService.getNotification(testAddress,testAddressTransactionHash)
-            //fail the test in no exception is thrown
+            //fail the test if no exception is thrown
             assert false
         } catch (RippleRequestException e) {
             assert e.message =="There was an error processing your request: Specified address is invalid: account"
@@ -266,7 +266,7 @@ class simpTest {
             currency = "XRP"
             sourceCurrencies = ["USD","CHF","BTC"]
         }
-            //fail the test in no exception is thrown
+            //fail the test if no exception is thrown
             assert false
 
         } catch (RippleRequestException e) {
@@ -281,7 +281,7 @@ class simpTest {
             value = ".10"
             currency = "XRPPP"
         }
-            //fail the test in no exception is thrown
+            //fail the test if no exception is thrown
             assert false
         } catch (RippleRequestException e) {
             assert e.message =="There was an error processing your request: Invalid parameter: destination_amount. Must be an object of the form { value: '1', currency: 'XRP', issuer: ' }"
@@ -293,7 +293,7 @@ class simpTest {
         response = rippleRestClientService.getPayment(testAddress){
             hash = testAddressPaymentHash
         }
-            //fail the test in no exception is thrown
+            //fail the test if no exception is thrown
             assert false
         } catch (RippleRequestException e) {
             assert e.message =="There was an error processing your request: Specified address is invalid: account"
@@ -306,7 +306,7 @@ class simpTest {
             earliest_first = false
             direction = "incoming"
         }
-            //fail the test in no exception is thrown
+            //fail the test if no exception is thrown
             assert false
         } catch (RippleRequestException e) {
             assert e.message =="There was an error processing your request: Specified address is invalid: account"
@@ -317,7 +317,7 @@ class simpTest {
         response = rippleRestClientService.getTrustLines("BAD"){
 
         }
-            //fail the test in no exception is thrown
+            //fail the test if no exception is thrown
             assert false
         } catch (RippleRequestException e) {
             assert e.message =="There was an error processing your request: Specified address is invalid: account"
@@ -331,7 +331,7 @@ class simpTest {
             counterparty = "rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B"
             account_allows_rippling = true
         }
-            //fail the test in no exception is thrown
+            //fail the test if no exception is thrown
             assert false
         } catch (RippleRequestException e) {
             assert e.message =="There was an error processing your request: Specified address is invalid: account"
