@@ -10,8 +10,8 @@ import sim.rest.RippleRequestException
 class simpTest {
 
     def rippleRestClientService
-    def testAddressSecret = "snYtdhR1U8zom65BVzTrBKNrdgtNc"
-    def testAddress = "rU4oGkzf2Hh82X4Aj2s4dz4ev33ezTzNTq"
+    def testAddressSecret = "PLEASE ADD"
+    def testAddress = "PLEASE ADD"
     def testAddressTransactionHash = "A2EE00F548F0E52DD0AFF6A061F2ECAD422B05F41B74D6BC233FD1C5CC930CE7"
     def testAddressPaymentHash = "6E812934DCA7F4B81F8AE1DC9EA550D816DF97D08DD8A5A85D8A9A5974B3920C"
     def testDestAddress = "rLGaDmicKt96YguCvnCyWq9n7RjjarTWWb"
